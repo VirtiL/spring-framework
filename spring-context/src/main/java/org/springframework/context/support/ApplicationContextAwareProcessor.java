@@ -99,6 +99,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 			}, acc);
 		}
 		else {
+			//调用了一堆其他的Aware
 			invokeAwareInterfaces(bean);
 		}
 
