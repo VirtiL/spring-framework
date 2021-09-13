@@ -312,10 +312,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (requiredType != null) {
 					beanCreation.tag("beanType", requiredType::toString);
 				}
+				//合并bean定义
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+				//检查bean定义,如果是抽象bean定义就不能创建bean
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
+				//处理@DependsOn注解,让依赖项先被创建,存在循环依赖就抛异常
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
@@ -335,9 +338,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
+				//单例模式 开始创建bean
 				if (mbd.isSingleton()) {
+					//函数调用,此函数就是一个参数
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
+							//创建bean的逻辑
 							return createBean(beanName, mbd, args);
 						}
 						catch (BeansException ex) {
@@ -348,9 +354,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					//处理工厂bean的逻辑
 					beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				//多例模式
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
@@ -363,7 +371,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 					beanInstance = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
-
+				//其他作用域模式,比如说request,session等等
 				else {
 					String scopeName = mbd.getScope();
 					if (!StringUtils.hasLength(scopeName)) {
