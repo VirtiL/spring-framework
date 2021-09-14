@@ -61,7 +61,7 @@ task api(type: Javadoc) {
 /**
  * Produce KDoc for all Spring Framework modules in "build/docs/kdoc"
  */
-dokka {
+/*dokka {
 	dependsOn {
 		tasks.getByName("api")
 	}
@@ -103,17 +103,17 @@ dokka {
 		externalDocumentationLink {
 			url = new URL("https://www.reactive-streams.org/reactive-streams-1.0.1-javadoc/")
 		}
-/*
+*//*
 		This link causes errors, removing to fix the build.
 		externalDocumentationLink {
 			url = new URL("https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/")
 		}
-*/
+*//*
 		externalDocumentationLink {
 			url = new URL("https://r2dbc.io/spec/0.8.3.RELEASE/api/")
 		}
 	}
-}
+}*/
 
 task downloadResources(type: Download) {
 	def version = "0.2.5"
@@ -160,7 +160,7 @@ asciidoctorj {
  * Generate the Spring Framework Reference documentation from "src/docs/asciidoc"
  * in "build/docs/ref-docs/html5".
  */
-asciidoctor {
+/*asciidoctor {
 	baseDirFollowsSourceDir()
 	configurations 'asciidoctorExt'
 	sources {
@@ -174,7 +174,7 @@ asciidoctor {
 		}
 		from extractDocResources
 	}
-}
+}*/
 
 /**
  * Generate the Spring Framework Reference documentation from "src/docs/asciidoc"

@@ -218,6 +218,8 @@ public class InjectionMetadata {
 			}
 		}
 
+
+
 		/**
 		 * Either this or {@link #getResourceToInject} needs to be overridden.
 		 *
