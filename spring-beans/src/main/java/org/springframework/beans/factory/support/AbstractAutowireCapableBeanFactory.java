@@ -1451,7 +1451,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//处理 @Autowired @Value @Inject 见内部实现的AutowiredAnnotationBeanPostProcessor
 			//处理 @Resource 见内部实现的CommonAnnotationBeanPostProcessor
 			for (InstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().instantiationAware) {
-				//开始调用插件 postProcessProperties
+				//开始调用插件 postProcessProperties 实现自动注入
 				PropertyValues pvsToUse = bp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 				if (pvsToUse == null) {
 					if (filteredPds == null) {
@@ -1474,6 +1474,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
+			//在这里实现我们自己修改bean定义的注入,也就是设置的PropertyValues中的值,所以先自动注入,后注入我们自己写的,也就是覆盖了
 			applyPropertyValues(beanName, mbd, bw, pvs);//根据bean定义后置处理器中自己设置的依赖或者上边标记需要依赖注入的bean进行DI,也就是pvs的bean注入到bw里
 		}
 	}

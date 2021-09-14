@@ -116,6 +116,8 @@ public class InjectionMetadata {
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
 			for (InjectedElement element : elementsToIterate) {
+				//开始注入,@Autowired的注入逻辑是在InjectionMetadata的子类里边,InjectionMetadata的inject方法是@Resource的注入逻辑
+				//也就是AutowiredAnnotationBeanPostProcessor这个后置处理器中的内部类AutowiredFieldElement和AutowiredMethodElement的inject方法
 				element.inject(target, beanName, pvs);
 			}
 		}
@@ -218,6 +220,7 @@ public class InjectionMetadata {
 
 		/**
 		 * Either this or {@link #getResourceToInject} needs to be overridden.
+		 *
 		 */
 		protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
 				throws Throwable {
