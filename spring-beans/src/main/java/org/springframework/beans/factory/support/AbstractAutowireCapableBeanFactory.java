@@ -1425,15 +1425,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		//用的很少,自带的依赖注入的功能,过时了已经 @Bean(autowired=Autowired.BY_NAME)
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
+		//默认是 NO,就是不执行了,毕竟过期了
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
 			if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
-				autowireByName(beanName, mbd, bw, newPvs);
+				autowireByName(beanName, mbd, bw, newPvs);//根据名称,标记需要依赖注入的bean
 			}
 			// Add property values based on autowire by type if applicable.
 			if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
-				autowireByType(beanName, mbd, bw, newPvs);
+				autowireByType(beanName, mbd, bw, newPvs);//根据类型,标记需要依赖注入的bean
 			}
 			pvs = newPvs;
 		}
@@ -1447,8 +1448,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				//bean定义中set进去的附加属性
 				pvs = mbd.getPropertyValues();
 			}
-			//处理 @Autowired @Resource @Value注解, 见内部实现的AutowiredAnnotationBeanPostProcessor
+			//处理 @Autowired @Value @Inject 见内部实现的AutowiredAnnotationBeanPostProcessor
+			//处理 @Resource 见内部实现的CommonAnnotationBeanPostProcessor
 			for (InstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().instantiationAware) {
+				//开始调用插件 postProcessProperties
 				PropertyValues pvsToUse = bp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 				if (pvsToUse == null) {
 					if (filteredPds == null) {
@@ -1471,7 +1474,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
-			applyPropertyValues(beanName, mbd, bw, pvs);
+			applyPropertyValues(beanName, mbd, bw, pvs);//根据bean定义后置处理器中自己设置的依赖或者上边标记需要依赖注入的bean进行DI,也就是pvs的bean注入到bw里
 		}
 	}
 
@@ -1487,7 +1490,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected void autowireByName(
 			String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
 
-		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);//获取set方法名
 		for (String propertyName : propertyNames) {
 			if (containsBean(propertyName)) {
 				Object bean = getBean(propertyName);
@@ -1571,11 +1574,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) {
 		Set<String> result = new TreeSet<>();
 		PropertyValues pvs = mbd.getPropertyValues();
-		PropertyDescriptor[] pds = bw.getPropertyDescriptors();
+		PropertyDescriptor[] pds = bw.getPropertyDescriptors();//属性描述器,就是记录了get, set方法
 		for (PropertyDescriptor pd : pds) {
 			if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) &&
 					!BeanUtils.isSimpleProperty(pd.getPropertyType())) {
-				result.add(pd.getName());
+				result.add(pd.getName());//set方法
 			}
 		}
 		return StringUtils.toStringArray(result);
