@@ -110,6 +110,8 @@ public class EventListenerMethodProcessor
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 
+		// 从BeanFactory中拿出所有EventListenerFactory类型的Bean
+		// 默认会拿出DefaultEventListenerFactory
 		Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
 		List<EventListenerFactory> factories = new ArrayList<>(beans.values());
 		AnnotationAwareOrderComparator.sort(factories);
@@ -124,6 +126,8 @@ public class EventListenerMethodProcessor
 		String[] beanNames = beanFactory.getBeanNamesForType(Object.class);
 		for (String beanName : beanNames) {
 			if (!ScopedProxyUtils.isScopedTarget(beanName)) {
+
+				// 拿到当前Bean对象的类型
 				Class<?> type = null;
 				try {
 					type = AutoProxyUtils.determineTargetClass(beanFactory, beanName);
@@ -167,6 +171,7 @@ public class EventListenerMethodProcessor
 				AnnotationUtils.isCandidateClass(targetType, EventListener.class) &&
 				!isSpringContainerClass(targetType)) {
 
+			// 找到所有加了@EventListener注解的方法
 			Map<Method, EventListener> annotatedMethods = null;
 			try {
 				annotatedMethods = MethodIntrospector.selectMethods(targetType,
@@ -194,6 +199,7 @@ public class EventListenerMethodProcessor
 				Assert.state(factories != null, "EventListenerFactory List not initialized");
 				for (Method method : annotatedMethods.keySet()) {
 					for (EventListenerFactory factory : factories) {
+						// 利用EventListenerFactory来对加了@EventListener注解的方法生成ApplicationListener对象
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
 							ApplicationListener<?> applicationListener =

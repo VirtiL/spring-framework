@@ -102,6 +102,7 @@ public class InjectionMetadata {
 		Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {
 			Member member = element.getMember();
+			// 将Field或Method记录到BeanDefinition中的externallyManagedConfigMembers中，表示该Field或Method是BeanFactory外部管理的
 			if (!beanDefinition.isExternallyManagedConfigMember(member)) {
 				beanDefinition.registerExternallyManagedConfigMember(member);
 				checkedElements.add(element);
@@ -115,6 +116,7 @@ public class InjectionMetadata {
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
+			// 遍历每个注入点进行依赖注入
 			for (InjectedElement element : elementsToIterate) {
 				//开始注入,@Autowired的注入逻辑是在InjectionMetadata的子类里边,InjectionMetadata的inject方法是@Resource的注入逻辑
 				//也就是AutowiredAnnotationBeanPostProcessor这个后置处理器中的内部类AutowiredFieldElement和AutowiredMethodElement的inject方法

@@ -130,6 +130,7 @@ public class JstlView extends InternalResourceView {
 	 */
 	@Override
 	protected void exposeHelpers(HttpServletRequest request) throws Exception {
+		// 国际化的那玩意
 		if (this.messageSource != null) {
 			JstlUtils.exposeLocalizationContext(request, this.messageSource);
 		}

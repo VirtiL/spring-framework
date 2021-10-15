@@ -127,6 +127,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 		int deepest = Integer.MAX_VALUE;
 
 		if (this.rollbackRules != null) {
+			// 遍历所有的RollbackRuleAttribute，判断现在抛出的异常ex是否匹配RollbackRuleAttribute中指定的异常类型的子类或本身
 			for (RollbackRuleAttribute rule : this.rollbackRules) {
 				int depth = rule.getDepth(ex);
 				if (depth >= 0 && depth < deepest) {
@@ -141,6 +142,7 @@ public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute i
 			return super.rollbackOn(ex);
 		}
 
+		// ex所匹配的RollbackRuleAttribute，可能是NoRollbackRuleAttribute，如果是匹配的NoRollbackRuleAttribute，那就表示现在这个异常ex不用回滚
 		return !(winner instanceof NoRollbackRuleAttribute);
 	}
 

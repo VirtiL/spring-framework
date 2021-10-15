@@ -46,17 +46,21 @@ public class LazySingletonAspectInstanceFactoryDecorator implements MetadataAwar
 		this.maaif = maaif;
 	}
 
+	// BeanFactoryAspectInstanceFactory中的getAspectInstance()会直接从beanFactory中获取切面bean实例
+	// LazySingletonAspectInstanceFactoryDecorator会对切面bean进行缓存
 
 	@Override
 	public Object getAspectInstance() {
 		Object aspectInstance = this.materialized;
 		if (aspectInstance == null) {
+			// 如果切面bean为单例，则mutex为null，从而会缓存切面Bean
 			Object mutex = this.maaif.getAspectCreationMutex();
 			if (mutex == null) {
 				aspectInstance = this.maaif.getAspectInstance();
 				this.materialized = aspectInstance;
 			}
 			else {
+				// 否则切面bean不为单例的情况下，会进行线程安全的控制，保证虽然切面Bean是多例，但是也只会产生一个切面bean对象
 				synchronized (mutex) {
 					aspectInstance = this.materialized;
 					if (aspectInstance == null) {

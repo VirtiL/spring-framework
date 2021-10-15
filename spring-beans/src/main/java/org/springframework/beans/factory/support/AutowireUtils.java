@@ -112,6 +112,7 @@ abstract class AutowireUtils {
 		if (setter != null) {
 			Class<?> targetClass = setter.getDeclaringClass();
 			for (Class<?> ifc : interfaces) {
+				// targetClass实现了ifc接口，并且该接口中定义了setter方法
 				if (ifc.isAssignableFrom(targetClass) && ClassUtils.hasMethod(ifc, setter)) {
 					return true;
 				}

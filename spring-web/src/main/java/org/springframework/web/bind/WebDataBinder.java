@@ -192,8 +192,8 @@ public class WebDataBinder extends DataBinder {
 	 */
 	@Override
 	protected void doBind(MutablePropertyValues mpvs) {
-		checkFieldDefaults(mpvs);
-		checkFieldMarkers(mpvs);
+		checkFieldDefaults(mpvs);	// !字段
+		checkFieldMarkers(mpvs);	// _字段
 		adaptEmptyArrayIndices(mpvs);
 		super.doBind(mpvs);
 	}

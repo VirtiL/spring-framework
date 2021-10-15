@@ -143,14 +143,17 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 */
 	@Override
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
+		// 先执行上层判断，如果匹配成功，在由自己匹配
 		boolean match = super.isAutowireCandidate(bdHolder, descriptor);
 		if (match) {
+			// descriptor.getAnnotations()拿得是属性或方法参数前的注解，拿不到方法上的注解
 			match = checkQualifiers(bdHolder, descriptor.getAnnotations());
 			if (match) {
 				MethodParameter methodParam = descriptor.getMethodParameter();
 				if (methodParam != null) {
 					Method method = methodParam.getMethod();
 					if (method == null || void.class == method.getReturnType()) {
+						// methodParam.getMethodAnnotations()实际上拿得的是方法上的注解
 						match = checkQualifiers(bdHolder, methodParam.getMethodAnnotations());
 					}
 				}
@@ -171,7 +174,10 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			Class<? extends Annotation> type = annotation.annotationType();
 			boolean checkMeta = true;
 			boolean fallbackToMeta = false;
+			// 当前注解是否是Qualifier
 			if (isQualifier(type)) {
+				// 当前注解是否是Qualifier，如果和当前BeanDefinition不匹配，则fallbackToMeta为true, checkMeta依然为true
+				// 比如@Random，它自己可以有一个value属性，并且上面还有一个@Qualifier("random")
 				if (!checkQualifier(bdHolder, annotation, typeConverter)) {
 					fallbackToMeta = true;
 				}
@@ -218,10 +224,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 */
 	protected boolean checkQualifier(
 			BeanDefinitionHolder bdHolder, Annotation annotation, TypeConverter typeConverter) {
+		// 检查某个Qualifier注解和某个BeanDefinition是否匹配
 
+		// annotation是某个属性或某个方法参数前上所使用的Qualifier
 		Class<? extends Annotation> type = annotation.annotationType();
 		RootBeanDefinition bd = (RootBeanDefinition) bdHolder.getBeanDefinition();
 
+		// 首先判断BeanDefinition有没有指定类型的限定符
 		AutowireCandidateQualifier qualifier = bd.getQualifier(type.getName());
 		if (qualifier == null) {
 			qualifier = bd.getQualifier(ClassUtils.getShortName(type));
@@ -243,6 +252,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 				// Look for matching annotation on the target class
 				if (getBeanFactory() != null) {
 					try {
+						// 拿到某个BeanDefinition对应的类上的@Qualifier
 						Class<?> beanType = getBeanFactory().getType(bdHolder.getBeanName());
 						if (beanType != null) {
 							targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(beanType), type);
@@ -256,10 +266,13 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 					targetAnnotation = AnnotationUtils.getAnnotation(ClassUtils.getUserClass(bd.getBeanClass()), type);
 				}
 			}
+			// 注解对象的equals比较特殊，JDK层面用到了动态代理，会比较value
 			if (targetAnnotation != null && targetAnnotation.equals(annotation)) {
 				return true;
 			}
 		}
+
+
 
 		Map<String, Object> attributes = AnnotationUtils.getAnnotationAttributes(annotation);
 		if (attributes.isEmpty() && qualifier == null) {

@@ -144,6 +144,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	private static <A extends Annotation> AspectJAnnotation<A> findAnnotation(Method method, Class<A> toLookFor) {
 		A result = AnnotationUtils.findAnnotation(method, toLookFor);
 		if (result != null) {
+			// 内部会去解析
 			return new AspectJAnnotation<>(result);
 		}
 		else {

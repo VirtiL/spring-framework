@@ -227,6 +227,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 				}
 				throw ex;
 			}
+			// 如果没有设置MediaType
+			// 通过HttpMessageConverter 介入、找到最合适的HttpMessageConverter， 获取对应设定的MediaType
 			List<MediaType> producibleTypes = getProducibleMediaTypes(request, valueType, targetType);
 
 			if (body != null && producibleTypes.isEmpty()) {

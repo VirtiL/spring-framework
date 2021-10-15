@@ -142,7 +142,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 			attribute = mavContainer.getModel().get(name);
 		}
 		else {
-			// Create attribute instance
+			// Create attribute instance  解析属性 ：单个参数： 通过request.getParameter解析参数  ；  pojo:  通过构造函数进行实例化，
 			try {
 				attribute = createAttribute(name, parameter, binderFactory, webRequest);
 			}
@@ -164,7 +164,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 
 		if (bindingResult == null) {
 			// Bean property binding and validation;
-			// skipped in case of binding failure on construction.
+			// skipped in case of binding failure on construction.  为属性创建一个数据绑定器
 			WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
 			if (binder.getTarget() != null) {
 				if (!mavContainer.isBindingDisabled(name)) {
@@ -215,7 +215,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
 		Class<?> clazz = nestedParameter.getNestedParameterType();
-
+		// 通过构造函数，构造一个实例
 		Constructor<?> ctor = BeanUtils.getResolvableConstructor(clazz);
 		Object attribute = constructAttribute(ctor, attributeName, parameter, binderFactory, webRequest);
 		if (parameter != nestedParameter) {

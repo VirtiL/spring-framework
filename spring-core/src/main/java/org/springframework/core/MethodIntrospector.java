@@ -59,22 +59,28 @@ public final class MethodIntrospector {
 		final Map<Method, T> methodMap = new LinkedHashMap<>();
 		Set<Class<?>> handlerTypes = new LinkedHashSet<>();
 		Class<?> specificHandlerType = null;
-
+		//获取原始的class对象
 		if (!Proxy.isProxyClass(targetType)) {
 			specificHandlerType = ClassUtils.getUserClass(targetType);
 			handlerTypes.add(specificHandlerType);
 		}
+		//获取class的接口
 		handlerTypes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetType));
-
+		//循环我们的class集合
 		for (Class<?> currentHandlerType : handlerTypes) {
 			final Class<?> targetClass = (specificHandlerType != null ? specificHandlerType : currentHandlerType);
 
 			ReflectionUtils.doWithMethods(currentHandlerType, method -> {
+				//获取具体的方法对象
 				Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+				 /**回调 即解析@RequestMapping 返回RequestMappingInfo
+				  * @see org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping#getMappingForMethod(java.lang.reflect.Method, java.lang.Class)*/
 				T result = metadataLookup.inspect(specificMethod);
 				if (result != null) {
+					// 看看有没有桥接方法，泛型实现类jvm会自动生成桥接类，不知道有啥意义
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 					if (bridgedMethod == specificMethod || metadataLookup.inspect(bridgedMethod) == null) {
+						//把方法对象作为key,RequestMappingInfo对象作为value保存到map中
 						methodMap.put(specificMethod, result);
 					}
 				}

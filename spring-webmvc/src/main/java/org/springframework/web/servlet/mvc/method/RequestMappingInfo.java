@@ -58,7 +58,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * <li>{@link ProducesRequestCondition}
  * <li>{@code RequestCondition} (optional, custom request condition)
  * </ol>
- *
+ * 类似组合者的设计模式（但不符合节点自由增加特性）
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @since 3.1
@@ -374,22 +374,27 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	@Override
 	@Nullable
 	public RequestMappingInfo getMatchingCondition(HttpServletRequest request) {
+		//获取RequestMethod方法   RequestMethod枚举类型(GET、POST、PUT、DELETE)
 		RequestMethodsRequestCondition methods = this.methodsCondition.getMatchingCondition(request);
 		if (methods == null) {
 			return null;
 		}
+		//请求中的params 指定request中必须包含某些参数值是，才让该方法处理。
 		ParamsRequestCondition params = this.paramsCondition.getMatchingCondition(request);
 		if (params == null) {
 			return null;
 		}
+		//指定request中必须包含某些指定的header值，才能让该方法处理请求。
 		HeadersRequestCondition headers = this.headersCondition.getMatchingCondition(request);
 		if (headers == null) {
 			return null;
 		}
+		//指定处理请求的提交内容类型（Content-Type），例如application/json, text/html;
 		ConsumesRequestCondition consumes = this.consumesCondition.getMatchingCondition(request);
 		if (consumes == null) {
 			return null;
 		}
+		//指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回；
 		ProducesRequestCondition produces = this.producesCondition.getMatchingCondition(request);
 		if (produces == null) {
 			return null;
@@ -401,6 +406,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 				return null;
 			}
 		}
+		//比如@RequestMapping(value = {"/tuling","/angle"}) 那么我们RequestMappingInfo对象
+		//中的patternsCondition 就会有二个,那么根据request解析出最合适的
 		PatternsRequestCondition patterns = null;
 		if (this.patternsCondition != null) {
 			patterns = this.patternsCondition.getMatchingCondition(request);
@@ -412,6 +419,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		if (custom == null) {
 			return null;
 		}
+		//封装为一个最合适的RequestMapingInfo信息返回去
 		return new RequestMappingInfo(this.name, pathPatterns, patterns,
 				methods, params, headers, consumes, produces, custom, this.options);
 	}

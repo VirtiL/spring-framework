@@ -16,10 +16,10 @@
 
 package org.springframework.core.metrics.jfr;
 
-import jdk.jfr.Category;
-import jdk.jfr.Description;
-import jdk.jfr.Event;
-import jdk.jfr.Label;
+//import jdk.jfr.Category;
+//import jdk.jfr.Description;
+//import jdk.jfr.Event;
+//import jdk.jfr.Label;
 
 /**
  * {@link Event} extension for recording {@link FlightRecorderStartupStep}
@@ -31,19 +31,20 @@ import jdk.jfr.Label;
  * @author Brian Clozel
  * @since 5.3
  */
-@Category("Spring Application")
-@Label("Startup Step")
-@Description("Spring Application Startup")
-class FlightRecorderStartupEvent extends Event {
+//@Category("Spring Application")
+//@Label("Startup Step")
+//@Description("Spring Application Startup")
+//class FlightRecorderStartupEvent extends Event {
+class FlightRecorderStartupEvent {
 
 	public final long eventId;
 
 	public final long parentId;
 
-	@Label("Name")
+//	@Label("Name")
 	public final String name;
 
-	@Label("Tags")
+//	@Label("Tags")
 	String tags = "";
 
 	public FlightRecorderStartupEvent(long eventId, String name, long parentId) {

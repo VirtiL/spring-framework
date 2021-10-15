@@ -72,7 +72,7 @@ public class ServletModelAttributeMethodProcessor extends ModelAttributeMethodPr
 	@Override
 	protected final Object createAttribute(String attributeName, MethodParameter parameter,
 			WebDataBinderFactory binderFactory, NativeWebRequest request) throws Exception {
-
+		// 先通过request.getParameter(attributeName属性名); 直接获取， 如果参数是个pojo对象肯定获取不到啦
 		String value = getRequestValueForAttribute(attributeName, request);
 		if (value != null) {
 			Object attribute = createAttributeFromRequestValue(

@@ -704,7 +704,7 @@ public class MethodParameter {
 	public String getParameterName() {
 		if (this.parameterIndex < 0) {
 			return null;
-		}
+		}// 拿到参数名称发现者
 		ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
 		if (discoverer != null) {
 			String[] parameterNames = null;

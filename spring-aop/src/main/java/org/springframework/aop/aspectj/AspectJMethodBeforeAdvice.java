@@ -19,6 +19,7 @@ package org.springframework.aop.aspectj;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.aspectj.lang.annotation.Before;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.lang.Nullable;
 
@@ -32,6 +33,12 @@ import org.springframework.lang.Nullable;
 @SuppressWarnings("serial")
 public class AspectJMethodBeforeAdvice extends AbstractAspectJAdvice implements MethodBeforeAdvice, Serializable {
 
+	/**
+	 *
+	 * @param aspectJBeforeAdviceMethod @Before所注解的Method对象
+	 * @param pointcut	@Before所对应的Pointcut，表示当前Advice所对应的切点
+	 * @param aif
+	 */
 	public AspectJMethodBeforeAdvice(
 			Method aspectJBeforeAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aif) {
 

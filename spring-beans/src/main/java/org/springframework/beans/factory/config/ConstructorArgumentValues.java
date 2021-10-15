@@ -353,10 +353,18 @@ public class ConstructorArgumentValues {
 	@Nullable
 	public ValueHolder getArgumentValue(int index, @Nullable Class<?> requiredType, @Nullable String requiredName, @Nullable Set<ValueHolder> usedValueHolders) {
 		Assert.isTrue(index >= 0, "Index must not be negative");
+
+		// 注意，在向BeanDefinition中添加构造方法的入参值时，可以指定下标，也可以不指定下标
+
+		// 获取特定下标所对应的入参对象
 		ValueHolder valueHolder = getIndexedArgumentValue(index, requiredType, requiredName);
+
+		// 如果没有找到，则匹配没有指定下标的构造方法入参对象
 		if (valueHolder == null) {
 			valueHolder = getGenericArgumentValue(requiredType, requiredName, usedValueHolders);
 		}
+
+		// ValueHolder对象中的value属性就是程序员通过addIndexedArgumentValue、addGenericArgumentValue方法所传入的对象
 		return valueHolder;
 	}
 

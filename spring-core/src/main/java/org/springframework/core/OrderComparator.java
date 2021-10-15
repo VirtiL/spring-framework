@@ -74,6 +74,9 @@ public class OrderComparator implements Comparator<Object> {
 	}
 
 	private int doCompare(@Nullable Object o1, @Nullable Object o2, @Nullable OrderSourceProvider sourceProvider) {
+		// OrderComparator是升序排序：实现了PriorityOrdered接口最小-->实现了Ordered接口的第二-->没有实现Ordered接口最后，实现了相同接口的按getOrder()返回值进行比较
+
+		// 实现了PriorityOrdered接口 < 没有实现PriorityOrdered接口
 		boolean p1 = (o1 instanceof PriorityOrdered);
 		boolean p2 = (o2 instanceof PriorityOrdered);
 		if (p1 && !p2) {
@@ -83,6 +86,7 @@ public class OrderComparator implements Comparator<Object> {
 			return 1;
 		}
 
+		// 都实现了PriorityOrdered接口就使用getOrder()返回的序值进行比较
 		int i1 = getOrder(o1, sourceProvider);
 		int i2 = getOrder(o2, sourceProvider);
 		return Integer.compare(i1, i2);

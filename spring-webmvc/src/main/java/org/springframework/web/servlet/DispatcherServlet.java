@@ -489,7 +489,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		initStrategies(context);
 	}
 
-	/**
+	/**初始化策略
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
@@ -1043,10 +1043,10 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// Determine handler adapter for the current request.
+				// 找到最合适的HandlerAdapter
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
-				// Process last-modified header, if supported by the handler.
+				// Process last-modified header, if supported by the handler.  HTTP缓存相关
 				String method = request.getMethod();
 				boolean isGet = HttpMethod.GET.matches(method);
 				if (isGet || HttpMethod.HEAD.matches(method)) {
@@ -1055,8 +1055,9 @@ public class DispatcherServlet extends FrameworkServlet {
 						return;
 					}
 				}
-
+				// 前置拦截器
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
+					// 返回false就不进行后续处理了
 					return;
 				}
 
@@ -1066,8 +1067,9 @@ public class DispatcherServlet extends FrameworkServlet {
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
-
+				// 如果没有视图，给你设置默认视图  json忽略
 				applyDefaultViewName(processedRequest, mv);
+				//后置拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1078,6 +1080,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
+			// 渲染视图
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1104,7 +1107,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
-	 * Do we need view name translation?
+	 * 如果没有视图，给你设置默认视图
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, @Nullable ModelAndView mv) throws Exception {
 		if (mv != null && !mv.hasView()) {
@@ -1156,7 +1159,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		if (mappedHandler != null) {
-			// Exception (if any) is already handled..
+			// Exception (if any) is already handled..   拦截器：AfterCompletion
 			mappedHandler.triggerAfterCompletion(request, response, null);
 		}
 	}
@@ -1254,6 +1257,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
+			/** 拿到所有handlerMappings （容器启动阶段初始化：拿到所有实现了HandlerMapping的Bean）
+			 * @see DispatcherServlet#initHandlerMappings
+			 * 测试发现： 不同的HandlerMapping可以有相同path, 谁先解析到就用哪个
+			 * */
 			for (HandlerMapping mapping : this.handlerMappings) {
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {

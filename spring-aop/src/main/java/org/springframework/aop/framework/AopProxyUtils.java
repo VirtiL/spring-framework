@@ -125,7 +125,10 @@ public abstract class AopProxyUtils {
 	 * @see DecoratingProxy
 	 */
 	static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised, boolean decoratingProxy) {
+		// 被代理对象自己所实现的接口
 		Class<?>[] specifiedInterfaces = advised.getProxiedInterfaces();
+
+		// 如果被代理对象没有实现接口，则判断被代理类是不是接口，或者被代理类是不是已经经过JDK动态代理之后的类从而获取想对应的接口
 		if (specifiedInterfaces.length == 0) {
 			// No user-specified interfaces: check whether target class is an interface.
 			Class<?> targetClass = advised.getTargetClass();
@@ -139,6 +142,8 @@ public abstract class AopProxyUtils {
 				specifiedInterfaces = advised.getProxiedInterfaces();
 			}
 		}
+
+		// 添加三个Spring内置接口：SpringProxy、Advised、DecoratingProxy
 		List<Class<?>> proxiedInterfaces = new ArrayList<>(specifiedInterfaces.length + 3);
 		for (Class<?> ifc : specifiedInterfaces) {
 			// Only non-sealed interfaces are actually eligible for JDK proxying (on JDK 17)

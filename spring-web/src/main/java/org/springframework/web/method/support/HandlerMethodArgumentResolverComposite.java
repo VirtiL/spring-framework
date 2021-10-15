@@ -130,7 +130,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 		HandlerMethodArgumentResolver result = this.argumentResolverCache.get(parameter);
 		if (result == null) {
 			for (HandlerMethodArgumentResolver resolver : this.argumentResolvers) {
-				if (resolver.supportsParameter(parameter)) {
+ 				if (resolver.supportsParameter(parameter)) {
 					result = resolver;
 					this.argumentResolverCache.put(parameter, result);
 					break;

@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'org.springframework'
+version '5.3.10-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    compile(project(":spring-webmvc"))
+    compile(project(":spring-core"))
+    compile(project(":spring-web"))
+    compile(project(":spring-context-support"))
+
+    // https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core
+    compile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.45'
+}
+
+test {
+    useJUnitPlatform()
+}

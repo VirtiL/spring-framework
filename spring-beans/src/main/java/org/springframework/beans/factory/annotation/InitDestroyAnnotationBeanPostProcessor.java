@@ -48,6 +48,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
+
 /**
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} implementation
  * that invokes annotated init and destroy methods. Allows for an annotation
@@ -101,10 +102,10 @@ public class InitDestroyAnnotationBeanPostProcessor
 	protected transient Log logger = LogFactory.getLog(getClass());
 
 	@Nullable
-	private Class<? extends Annotation> initAnnotationType;//子类放进去的
+	private Class<? extends Annotation> initAnnotationType;  // @PostConstruct,子类放进去的
 
 	@Nullable
-	private Class<? extends Annotation> destroyAnnotationType;
+	private Class<? extends Annotation> destroyAnnotationType;  // @PreDestroy
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
@@ -246,6 +247,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 				}
 			});
 
+			// 父类的在前面
 			initMethods.addAll(0, currInitMethods);
 			destroyMethods.addAll(currDestroyMethods);
 			targetClass = targetClass.getSuperclass();

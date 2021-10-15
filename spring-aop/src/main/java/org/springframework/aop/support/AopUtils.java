@@ -223,6 +223,9 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// 判断targetClass是不是和当前Pointcut匹配
+
+		// 先判断类
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
@@ -249,6 +252,7 @@ public abstract class AopUtils {
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
+						// 在判断方法是否匹配
 						methodMatcher.matches(method, targetClass)) {
 					return true;
 				}
@@ -341,6 +345,7 @@ public abstract class AopUtils {
 		// Use reflection to invoke the method.
 		try {
 			ReflectionUtils.makeAccessible(method);
+			// 执行普通对象的方法，注意和@Configuration产生的代理对象的逻辑区别
 			return method.invoke(target, args);
 		}
 		catch (InvocationTargetException ex) {

@@ -95,7 +95,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	@Nullable
 	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		// 获得参数名称
 		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
 
@@ -150,8 +150,8 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
 		NamedValueInfo namedValueInfo = this.namedValueInfoCache.get(parameter);
 		if (namedValueInfo == null) {
-			namedValueInfo = createNamedValueInfo(parameter);
-			namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);
+			namedValueInfo = createNamedValueInfo(parameter);   // 创建一个@RequestParam对应的RequestParamNamedValueInfo
+			namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);  // 参数名称解析
 			this.namedValueInfoCache.put(parameter, namedValueInfo);
 		}
 		return namedValueInfo;
@@ -171,6 +171,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
 		String name = info.name;
 		if (info.name.isEmpty()) {
+			// * 获得参数名称
 			name = parameter.getParameterName();
 			if (name == null) {
 				throw new IllegalArgumentException(

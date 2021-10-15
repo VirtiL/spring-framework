@@ -8,9 +8,9 @@ dependencies {
 	compile(project(":spring-core"))
 	compileOnly(project(":kotlin-coroutines"))
 	compileOnly("io.projectreactor.tools:blockhound")
-	optional(project(":spring-aop"))
-	optional(project(":spring-context"))
-	optional(project(":spring-oxm"))
+	compile(project(":spring-aop"))
+	compile(project(":spring-context"))
+	compile(project(":spring-oxm"))
 	optional("javax.servlet:javax.servlet-api") // Servlet 4 for mapping type
 	optional("javax.servlet.jsp:javax.servlet.jsp-api")
 	optional("javax.el:javax.el-api")

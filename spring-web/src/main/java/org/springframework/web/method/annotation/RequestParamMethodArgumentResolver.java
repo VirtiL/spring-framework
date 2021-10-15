@@ -177,7 +177,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 				arg = (files.size() == 1 ? files.get(0) : files);
 			}
 		}
-		if (arg == null) {
+		if (arg == null) {// *解析参数值 ： request.getParameter方式
 			String[] paramValues = request.getParameterValues(name);
 			if (paramValues != null) {
 				arg = (paramValues.length == 1 ? paramValues[0] : paramValues);

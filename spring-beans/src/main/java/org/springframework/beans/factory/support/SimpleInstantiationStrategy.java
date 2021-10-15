@@ -57,9 +57,13 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	}
 
 
+	/**
+	 * 此方法有重载，此方法是用来调用无参构造方法来实例化的
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
+		// 判断当前BeanDefinition对应的beanClass中是否存在@Lookup的方法
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -88,6 +92,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		}
 		else {
 			// Must generate CGLIB subclass.
+			// 如果存在@Lookup，则会生成一个代理对象
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
@@ -151,6 +156,8 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// factoryBean就是AppConfig的代理对象（如果加了@Configuration）
+				// factoryMethod就是@Bean修饰的方法
 				Object result = factoryMethod.invoke(factoryBean, args);
 				if (result == null) {
 					result = new NullBean();

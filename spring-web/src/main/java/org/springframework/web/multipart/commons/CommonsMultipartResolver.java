@@ -174,6 +174,7 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 		}
 		else {
 			MultipartParsingResult parsingResult = parseRequest(request);
+			// 提前解析参数值
 			return new DefaultMultipartHttpServletRequest(request, parsingResult.getMultipartFiles(),
 					parsingResult.getMultipartParameters(), parsingResult.getMultipartParameterContentTypes());
 		}

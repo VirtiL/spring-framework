@@ -199,12 +199,15 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * {@link Controller @Controller} stereotype annotations.
 	 * <p>Also supports Java EE 6's {@link javax.annotation.ManagedBean} and
 	 * JSR-330's {@link javax.inject.Named} annotations, if available.
-	 *
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
+
+		// 注册@Component对应的AnnotationTypeFilter
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
+
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
+
 		try {
 			this.includeFilters.add(new AnnotationTypeFilter(
 					((Class<? extends Annotation>) ClassUtils.forName("javax.annotation.ManagedBean", cl)), false));
@@ -213,6 +216,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		catch (ClassNotFoundException ex) {
 			// JSR-250 1.1 API (as included in Java EE 6) not available - simply skip.
 		}
+
 		try {
 			this.includeFilters.add(new AnnotationTypeFilter(
 					((Class<? extends Annotation>) ClassUtils.forName("javax.inject.Named", cl)), false));
@@ -374,6 +378,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 		try {
 			Set<String> types = new HashSet<>();
 			for (TypeFilter filter : this.includeFilters) {
+				// Component注解
 				String stereotype = extractStereotype(filter);
 				if (stereotype == null) {
 					throw new IllegalArgumentException("Failed to extract stereotype from " + filter);
@@ -415,6 +420,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			// 获取basePackage下所有的文件资源
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
@@ -427,9 +433,11 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
-						if (isCandidateComponent(metadataReader)) {
+						// excludeFilters、includeFilters判断
+						if (isCandidateComponent(metadataReader)) { // @Component-->includeFilters判断
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setSource(resource);
+
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
@@ -491,6 +499,8 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				return false;
 			}
 		}
+
+		// 符合includeFilters的会进行条件匹配，通过了才是Bean，也就是先看有没有@Component，再看是否符合@Conditional
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);

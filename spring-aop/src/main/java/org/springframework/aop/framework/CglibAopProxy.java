@@ -163,12 +163,16 @@ class CglibAopProxy implements AopProxy, Serializable {
 		}
 
 		try {
+			// 被代理的类
 			Class<?> rootClass = this.advised.getTargetClass();
 			Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
 
 			Class<?> proxySuperClass = rootClass;
+			// 如果被代理类本身就已经是Cglib所生成的代理类了
 			if (rootClass.getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
+				// 获取真正的被代理类
 				proxySuperClass = rootClass.getSuperclass();
+				// 获取被代理类所实现的接口
 				Class<?>[] additionalInterfaces = rootClass.getInterfaces();
 				for (Class<?> additionalInterface : additionalInterfaces) {
 					this.advised.addInterface(additionalInterface);
@@ -187,11 +191,15 @@ class CglibAopProxy implements AopProxy, Serializable {
 					enhancer.setUseCache(false);
 				}
 			}
+
+			// 被代理类，代理类的父类
 			enhancer.setSuperclass(proxySuperClass);
+			// 代理类额外要实现的接口
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 
+			// 获取和被代理类所匹配的Advisor
 			Callback[] callbacks = getCallbacks(rootClass);
 			Class<?>[] types = new Class<?>[callbacks.length];
 			for (int x = 0; x < types.length; x++) {
@@ -310,8 +318,8 @@ class CglibAopProxy implements AopProxy, Serializable {
 				new StaticDispatcher(this.advised.getTargetSource().getTarget()) : new SerializableNoOp());
 
 		Callback[] mainCallbacks = new Callback[] {
-				aopInterceptor,  // for normal advice
-				targetInterceptor,  // invoke target without considering advice, if optimized
+				aopInterceptor,  // for normal advice，执行Interceptor链
+				targetInterceptor,  // invoke target without considering advice, if optimized 将代理对象设置到ThreadLocal中，AopContext.setCurrentProxy(proxy)
 				new SerializableNoOp(),  // no override for methods mapped to this
 				targetDispatcher, this.advisedDispatcher,
 				new EqualsInterceptor(this.advised),
@@ -576,14 +584,18 @@ class CglibAopProxy implements AopProxy, Serializable {
 		@Override
 		public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) {
 			Object other = args[0];
+			// 待比较对象等于代理对象
 			if (proxy == other) {
 				return true;
 			}
 			if (other instanceof Factory) {
+				// cglib产生的代理对象都实现了Factory接口
 				Callback callback = ((Factory) other).getCallback(INVOKE_EQUALS);
 				if (!(callback instanceof EqualsInterceptor)) {
 					return false;
 				}
+
+				// 如果是两个cglib代理对象在笔记，则比较它们所实现的接口，advisor，以及被代理对象
 				AdvisedSupport otherAdvised = ((EqualsInterceptor) callback).advised;
 				return AopProxyUtils.equalsInProxy(this.advised, otherAdvised);
 			}

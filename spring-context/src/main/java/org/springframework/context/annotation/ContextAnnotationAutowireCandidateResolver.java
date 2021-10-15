@@ -48,6 +48,7 @@ import org.springframework.util.Assert;
  */
 public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotationAutowireCandidateResolver {
 
+	// 判断是不是懒注入（@Autowired+@Lazy）,如果是则会在注入时先生成一个代理对象注入给属性，所以懒注入并不代表属性为null
 	@Override
 	@Nullable
 	public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {

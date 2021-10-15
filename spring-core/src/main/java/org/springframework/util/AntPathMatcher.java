@@ -778,46 +778,54 @@ public class AntPathMatcher implements PathMatcher {
 			PatternInfo info1 = new PatternInfo(pattern1);
 			PatternInfo info2 = new PatternInfo(pattern2);
 
+			// 如果pattern1 > pattern2 则会将 pattern2 放在前面 (优先级较高), 反则不动
+			// 再通俗一点讲 1表示Info2的优先级上调  , -1表示 info1的优先级上调
+
+			// 如果1、2都是：/** 匹配所有  不变
 			if (info1.isLeastSpecific() && info2.isLeastSpecific()) {
 				return 0;
 			}
+			// 1 是/** 全匹配  1降低优先级
 			else if (info1.isLeastSpecific()) {
 				return 1;
 			}
+			// 2 是/** 全匹配  1提升优先级
 			else if (info2.isLeastSpecific()) {
 				return -1;
 			}
 
+			// 具体匹配
 			boolean pattern1EqualsPath = pattern1.equals(this.path);
 			boolean pattern2EqualsPath = pattern2.equals(this.path);
 			if (pattern1EqualsPath && pattern2EqualsPath) {
-				return 0;
+				return 0;  // 都是具体匹配不变
 			}
 			else if (pattern1EqualsPath) {
-				return -1;
+				return -1;  // 1 是具体匹配  1更精准 提升优先级
 			}
 			else if (pattern2EqualsPath) {
-				return 1;
+				return 1;  // 2 是具体匹配  2更精准 提升优先级
 			}
-
+			// 1、2都是结尾匹配所有   路径长的更精准  比如  uri=/user/info/address   1:/user/**  2: /user/info/**    则2更精准1降低优先级
 			if (info1.isPrefixPattern() && info2.isPrefixPattern()) {
 				return info2.getLength() - info1.getLength();
 			}
+			// 如果1结尾匹配所有  并且2是双通配符 比如  uri=/user/info/address   1:/user/**  2: /user/**/address  则2更精准1降低优先级
 			else if (info1.isPrefixPattern() && info2.getDoubleWildcards() == 0) {
 				return 1;
-			}
+			}// 如果2结尾匹配所有  并且1是双通配符 比如  uri=/user/info/address   1:/user/**  2: /user/**/address  则1更精准2降低优先级
 			else if (info2.isPrefixPattern() && info1.getDoubleWildcards() == 0) {
 				return -1;
 			}
-
+			// TotalCount=(包含"{"的次数) +("*出现的次数") + "("**出现的次数")"  谁多谁优先级低
 			if (info1.getTotalCount() != info2.getTotalCount()) {
 				return info1.getTotalCount() - info2.getTotalCount();
 			}
-
+			// 谁长谁优先级高   ， 注意： {} 的长度会特殊处理  {xxxx} 会替换成 #  变成1个长度
 			if (info1.getLength() != info2.getLength()) {
 				return info2.getLength() - info1.getLength();
 			}
-
+			//*次数比较
 			if (info1.getSingleWildcards() < info2.getSingleWildcards()) {
 				return -1;
 			}
@@ -825,6 +833,7 @@ public class AntPathMatcher implements PathMatcher {
 				return 1;
 			}
 
+			// { 出现的次数
 			if (info1.getUriVars() < info2.getUriVars()) {
 				return -1;
 			}
@@ -844,15 +853,15 @@ public class AntPathMatcher implements PathMatcher {
 
 			@Nullable
 			private final String pattern;
-
+			// { 数量
 			private int uriVars;
-
+			// 单通配符 数量
 			private int singleWildcards;
-
+			// 双通配符 数量
 			private int doubleWildcards;
-
+			// 是否匹配所有 ：/**
 			private boolean catchAllPattern;
-
+			// 是否结尾 /**
 			private boolean prefixPattern;
 
 			@Nullable
@@ -864,7 +873,7 @@ public class AntPathMatcher implements PathMatcher {
 					initCounters();
 					this.catchAllPattern = this.pattern.equals("/**");
 					this.prefixPattern = !this.catchAllPattern && this.pattern.endsWith("/**");
-				}
+				}// 如果有{   数量要特殊处理
 				if (this.uriVars == 0) {
 					this.length = (this.pattern != null ? this.pattern.length() : 0);
 				}
